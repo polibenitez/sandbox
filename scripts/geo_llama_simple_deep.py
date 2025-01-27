@@ -12,15 +12,12 @@ import os
 from datetime import timedelta
 from tqdm import tqdm  # Importar tqdm para la barra de progreso
 
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ3NGQ5MDZkLTc0MDQtNGJkMS04OThmLTVlMzMyY2NmNzM3ZiIsImlzcyI6ImdwdGpyYyIsImlhdCI6MTcwMzI4ODc3OSwiZXhwIjoxNzQ4NjQ5NjAwLCJpc19yZXZva2VkIjpmYWxzZSwiYWNjb3VudF9pZCI6ImJkMzMzYjk0LTMzYTAtNDc5MS04YjY2LTJlYWFjMmZiMzgwNiIsInVzZXJuYW1lIjoiVmljdG9yaWFuby5NQURST05BTC1ERS1MT1MtU0FOVE9TQGV4dC5lYy5ldXJvcGEuZXUiLCJwcm9qZWN0X2lkIjoiSW5kdXN0cmlhbF9Jbm5vdmF0aW9uX2FuZF9EeW5hbWljcyIsInF1b3RhcyI6W3sibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0wMzAxIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0wNjEzIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0xNmsiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH0seyJtb2RlbF9uYW1lIjoiZ3B0LTQiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH0seyJtb2RlbF9uYW1lIjoiZ3B0LTQtMzJrIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0xMTA2IiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC00LTExMDYiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH1dfQ.SRoH8vMr1zNdmsjtG3W604wkaomxEjCDdkMPkrmls3w"
-MY_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjBiMzU0YTdjLTkyZGMtNDMyYS05ZjA4LWQ0NGZmNmFlMDhjNyIsImlzcyI6ImdwdGpyYyIsImlhdCI6MTczMzE1ODU0MSwiZXhwIjoxNzQwNzAwODAwLCJpc19yZXZva2VkIjpmYWxzZSwiYWNjb3VudF9pZCI6IjAwMzJlNDQ4LTBlNTctNGQ1Mi05M2NjLTcwMTJhOTI5ZTgzOSIsInVzZXJuYW1lIjoibWFudWVsLmJlbml0ZXotc2FuY2hlekBleHQuZWMuZXVyb3BhLmV1IiwicHJvamVjdF9pZCI6IklJRCIsInF1b3RhcyI6W3sibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0wMzAxIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0wNjEzIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0xNmsiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH0seyJtb2RlbF9uYW1lIjoiZ3B0LTQiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH0seyJtb2RlbF9uYW1lIjoiZ3B0LTQtMzJrIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0xMTA2IiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC00LTExMDYiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH1dfQ.F4fDws4IjuvJrbd-v6-uxR9Fzn1F510gf2VlkCyP3m4"
-L_token= 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImM5YjY1NDAyLTM3NGItNGZmOS1iZDY2LTZkOGYwYzEzN2ZlZiIsImlzcyI6ImdwdGpyYyIsImlhdCI6MTczNDA5MDA1NSwiZXhwIjoxNzM4MjgxNjAwLCJpc19yZXZva2VkIjpmYWxzZSwiYWNjb3VudF9pZCI6IjFmMTIzMjkzLTc1NjctNDY1Yi04ODhiLTVhYTlmNzEyYzc2YSIsInVzZXJuYW1lIjoibG9yZW56by5uYXBvbGl0YW5vQGVjLmV1cm9wYS5ldSIsInByb2plY3RfaWQiOiJJSUQiLCJkZXBhcnRtZW50IjoiSlJDLlQuNiIsInF1b3RhcyI6W3sibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0wMzAxIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0wNjEzIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0xNmsiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH0seyJtb2RlbF9uYW1lIjoiZ3B0LTQiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH0seyJtb2RlbF9uYW1lIjoiZ3B0LTQtMzJrIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0xMTA2IiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC00LTExMDYiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH1dLCJhY2Nlc3NfZ3JvdXBzIjpbeyJhY2Nlc3NfZ3JvdXAiOiJnZW5lcmFsIn1dfQ.BR7NXKBWQhINc3JGX4ShNYJx5HOWM68Jgaer4KCJ18Q'
-victor = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkOTEzMDgwLTc4NGUtNDIyMi1hZGI5LThlNDQwNjExY2M5MyIsImlzcyI6ImdwdGpyYyIsImlhdCI6MTczNjg0ODg0MiwiZXhwIjoxNzQwOTYwMDAwLCJpc19yZXZva2VkIjpmYWxzZSwiYWNjb3VudF9pZCI6IjMwNjIyY2FmLTdhZjQtNGQ3NS1hNTcxLTExZTg0Yjg5N2JjZiIsInVzZXJuYW1lIjoiVmljdG9yLlBPTkZFUlJBREFAZWMuZXVyb3BhLmV1IiwicHJvamVjdF9pZCI6IklJRCIsImRlcGFydG1lbnQiOiJKUkMuVC42IiwicXVvdGFzIjpbeyJtb2RlbF9uYW1lIjoiZ3B0LTRvIiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC0zNS10dXJiby0xMTA2IiwiZXhwaXJhdGlvbl9mcmVxdWVuY3kiOiJkYWlseSIsInZhbHVlIjo0MDAwMDB9LHsibW9kZWxfbmFtZSI6ImdwdC00LTExMDYiLCJleHBpcmF0aW9uX2ZyZXF1ZW5jeSI6ImRhaWx5IiwidmFsdWUiOjQwMDAwMH1dLCJhY2Nlc3NfZ3JvdXBzIjpbeyJhY2Nlc3NfZ3JvdXAiOiJnZW5lcmFsIn1dfQ.L-fqyAcZlJxpZKoPcWTH0R4LNooa_QuVu0ES1dBs4_k'
-BASE_URL = "https://api-gpt.jrc.ec.europa.eu/v1"
+TOKEN = "eyJhbG"
+BASE_URL = "http://127.0.0.1:1234/v1"
 MAX_WORKERS = 5
 BATCH_SIZE = 100 
-
-FOLDER = 'patents_complx/data_by_country'
+MODEL = 'deepseek-r1-distill-qwen-7b'
+FOLDER = 'data_by_country'
 
 def create_output_directory(file_path):
     """Create output directory based on parquet file name"""
@@ -162,7 +159,7 @@ def get_address_from_llm(address: List):
             )
             
             response = client.chat.completions.create(
-                model="llama-3.3-70b-instruct",
+                model=MODEL,
                 messages=[
                     {"role": "system", "content": """
                         Act as an address parsing and standardization service. Given a list of addresses, extract and standardize the following components:
@@ -217,11 +214,11 @@ def process_parquet_in_batches(df, output_path, batch_size=10, checkpoint_freque
     
     try:
         for start in tqdm(range(0, len(df), batch_size), desc="Processing records"):
-            end = start + batch_size
-            batch = df.iloc[start:end]
-            current_batch_size = len(batch)
-            
             try:
+                end = start + batch_size
+                batch = df.iloc[start:end]
+                current_batch_size = len(batch)
+                
                 address_list = get_address_from_llm(batch['person_address'].tolist())
                 print(address_list)
                 if address_list:
@@ -235,7 +232,6 @@ def process_parquet_in_batches(df, output_path, batch_size=10, checkpoint_freque
                             for col in new_columns:
                                 new_columns[col].append(None)
                     
-                    # Guardar checkpoint si hay datos nuevos
                     if start % checkpoint_frequency == 0 and new_columns['llm_street']:
                         processed_df = get_processed_df(df.iloc[:start + current_batch_size], new_columns)
                         total_processed = len(processed_df)
@@ -249,8 +245,21 @@ def process_parquet_in_batches(df, output_path, batch_size=10, checkpoint_freque
                         )
                         print(f"Checkpoint saved. Total processed records: {total_processed + previous_records}")
                 
+            except KeyboardInterrupt:
+                print("\nKeyboard interrupt detected in batch processing. Saving progress...")
+                if new_columns['llm_street']:
+                    processed_df = get_processed_df(df.iloc[:start + current_batch_size], new_columns)
+                    save_checkpoint(
+                        processed_df,
+                        new_columns,
+                        start,
+                        output_path,
+                        previous_records=previous_records,
+                        suffix='interrupt'
+                    )
+                raise
+                
             except RateLimitError:
-                # Guardar progreso antes de salir por rate limit
                 if new_columns['llm_street']:
                     processed_df = get_processed_df(df.iloc[:start + current_batch_size], new_columns)
                     return processed_df, "ratelimit"
@@ -260,7 +269,6 @@ def process_parquet_in_batches(df, output_path, batch_size=10, checkpoint_freque
                 print(f"Error in batch starting at {start}: {str(e)}")
                 continue
         
-        # Al finalizar todos los batches, procesar los resultados finales
         if new_columns['llm_street']:
             final_processed_df = get_processed_df(df, new_columns)
             return final_processed_df, "success"
@@ -303,21 +311,21 @@ def process_parquet_file(file_name):
         else:
             print("Starting from beginning")
             final_df, status = process_parquet_in_batches(df, output_dir)
-        
-        # Guardar resultado final si hay datos
+
+    except KeyboardInterrupt:
+        print("\nKeyboard interrupt detected. Saving current progress...")
         if final_df is not None and not final_df.empty:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             success, path = safe_save_dataframe(
                 final_df, 
                 output_dir, 
-                f'final_{len(final_df)}_{timestamp}'
+                f'interrupt_{timestamp}'
             )
             if success:
-                print(f"Successfully saved final results to {path}")
+                print(f"Successfully saved progress to {path}")
             else:
-                print("Failed to save final results")
-        else:
-            print("No data to save in final results")
+                print("Failed to save progress")
+        raise  # Re-raise the interrupt to properly exit the script
         
     except Exception as e:
         print(f"Error in process_parquet_file: {str(e)}")
@@ -354,7 +362,7 @@ def find_country_parquet_files(folder_path):
 
 country_files = find_country_parquet_files(FOLDER)
 countries_excluded = ['CY.parquet', 'EE.parquet', 'HR.parquet', 'LT.parquet', 'LV.parquet','MT.parquet','SK.parquet', 'PL.parquet', 'GR.parquet', 'ES.parquet', 'SE.parquet', 'RO.parquet', 'AT.parquet','BE.parquet', 'FI.parquet', 'DK.parquet', 'BG.parquet', 'IT.parquet', 'SI.parquet', 'CZ.parquet','HU.parquet']
-countries_included = ['GR.parquet']
+countries_included = ['SK.parquet']
 """
 Fi y Dk hay que arreglos
 """

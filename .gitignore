@@ -5,7 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
-
+#àrquet extension 
+*.parquet
+data_by_country/
 # Distribution / packaging
 .Python
 build/
