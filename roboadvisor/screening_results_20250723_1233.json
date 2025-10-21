@@ -1,0 +1,127 @@
+{
+  "timestamp": "2025-07-23T12:33:19.338724",
+  "statistics": {
+    "total": 89,
+    "high_score": 0,
+    "medium_score": 6,
+    "low_score": 6,
+    "filtered_out": 77
+  },
+  "recommended_tickers": [
+    "LCFY",
+    "XAIR",
+    "CTMX",
+    "CLOV",
+    "HTOO"
+  ],
+  "top_candidates": [
+    {
+      "ticker": "LCFY",
+      "score": 0.6,
+      "price": 6.340000152587891,
+      "price_change_pct": 19.84877501524707,
+      "volume_ratio": 1.2982501322429045,
+      "short_interest": 58.730000000000004,
+      "rsi": 53.30578711879502,
+      "market_cap": 8763021,
+      "reasons": [
+        "SI_58.7%",
+        "Up_19.8%",
+        "RSI_53"
+      ],
+      "data_quality": "good"
+    },
+    {
+      "ticker": "XAIR",
+      "score": 0.6,
+      "price": 3.4000000953674316,
+      "price_change_pct": 2.4096434859410953,
+      "volume_ratio": 12.625757486615285,
+      "short_interest": 0.37,
+      "rsi": 48.66071542610939,
+      "market_cap": 15775116,
+      "reasons": [
+        "Vol_12.6x",
+        "Up_2.4%",
+        "RSI_49"
+      ],
+      "data_quality": "good"
+    },
+    {
+      "ticker": "CTMX",
+      "score": 0.5,
+      "price": 2.390000104904175,
+      "price_change_pct": 0.42016764631987913,
+      "volume_ratio": 1.0048580685022157,
+      "short_interest": 14.770000999999999,
+      "rsi": 51.97369865764022,
+      "market_cap": 376530176,
+      "reasons": [
+        "SI_14.8%_ok",
+        "Up_0.4%",
+        "RSI_52"
+      ],
+      "data_quality": "good"
+    },
+    {
+      "ticker": "CLOV",
+      "score": 0.5,
+      "price": 3.2200000286102295,
+      "price_change_pct": 3.5369819043358834,
+      "volume_ratio": 0.9582232994345431,
+      "short_interest": 10.38,
+      "rsi": 65.16129171190852,
+      "market_cap": 1638712704,
+      "reasons": [
+        "SI_10.4%_ok",
+        "Up_3.5%",
+        "RSI_65"
+      ],
+      "data_quality": "good"
+    },
+    {
+      "ticker": "HTOO",
+      "score": 0.5,
+      "price": 6.710000038146973,
+      "price_change_pct": 56.775694140618604,
+      "volume_ratio": 18.361638268187548,
+      "short_interest": 0.06999999999999999,
+      "rsi": 46.331109809086435,
+      "market_cap": 5663844,
+      "reasons": [
+        "Vol_18.4x",
+        "Gap_56.8%",
+        "RSI_46"
+      ],
+      "data_quality": "good"
+    },
+    {
+      "ticker": "AMC",
+      "score": 0.4,
+      "price": 3.5,
+      "price_change_pct": 1.7441843541136839,
+      "volume_ratio": 0.6763678242858918,
+      "short_interest": 15.03,
+      "rsi": 72.66666528913731,
+      "market_cap": 1516003968,
+      "reasons": [
+        "SI_15.0%_ok",
+        "Up_1.7%"
+      ],
+      "data_quality": "good"
+    }
+  ],
+  "screening_criteria": {
+    "price_range": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "volume_min": 1000000,
+    "market_cap_max": 2000000000,
+    "short_interest_min": 10,
+    "price_change_range": {
+      "min": -20,
+      "max": 50
+    }
+  }
+}

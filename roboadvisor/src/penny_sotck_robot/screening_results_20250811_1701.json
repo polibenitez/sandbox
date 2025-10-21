@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-08-11T17:01:50.905157",
+  "statistics": {
+    "total": 89,
+    "high_score": 0,
+    "medium_score": 2,
+    "low_score": 4,
+    "filtered_out": 83
+  },
+  "recommended_tickers": [
+    "MULN"
+  ],
+  "top_candidates": [
+    {
+      "ticker": "MULN",
+      "score": 0.6,
+      "price": 1.725000023841858,
+      "price_change_pct": -19.39252620181062,
+      "volume_ratio": 7.689499807685511,
+      "short_interest": 25.22,
+      "rsi": 4.5103092838935055,
+      "market_cap": 695574,
+      "reasons": [
+        "SI_25.2%",
+        "Vol_7.7x"
+      ],
+      "data_quality": "good"
+    },
+    {
+      "ticker": "AMC",
+      "score": 0.4,
+      "price": 3.065000057220459,
+      "price_change_pct": 4.6075081019595,
+      "volume_ratio": 1.768805510452403,
+      "short_interest": 15.359998999999998,
+      "rsi": 29.186607128190246,
+      "market_cap": 1327586432,
+      "reasons": [
+        "SI_15.4%_ok",
+        "Up_4.6%"
+      ],
+      "data_quality": "good"
+    }
+  ],
+  "screening_criteria": {
+    "price_range": {
+      "min": 0.1,
+      "max": 10.0
+    },
+    "volume_min": 1000000,
+    "market_cap_max": 2000000000,
+    "short_interest_min": 10,
+    "price_change_range": {
+      "min": -20,
+      "max": 50
+    }
+  }
+}

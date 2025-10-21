@@ -21,7 +21,7 @@ Para ejecutar esta aplicación necesitarás instalar varias bibliotecas de Pytho
 
 El modo de pruebas te permite descargar datos históricos de criptomonedas y probar diferentes estrategias de trading sin arriesgar dinero real. Es como si estuvieras en un simulador de conducción antes de salir a la carretera.
 
-pip install pandas numpy matplotlib ccxt talib scikit-learn tensorflow requests
+pip install pandas numpy matplotlib ccxt ta-lib scikit-learn tensorflow requests
 
 **Para ejecutar un backtest:**
 

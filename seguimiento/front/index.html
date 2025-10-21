@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Inversiones</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Your CSS remains the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .positive {
+            color: #28a745 !important;
+        }
+
+        .negative {
+            color: #dc3545 !important;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 400px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #dc3545;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📊 Control de Inversiones</h1>
+
+        <div class="metric-cards" id="metricCards">
+            <div class="loading">Cargando métricas...</div>
+        </div>
+
+        <div class="dashboard">
+            <div class="chart-container">
+                <h3>📈 Evolución de la Inversión</h3>
+                <canvas id="evolucionChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>🥧 Distribución por Valores</h3>
+                <canvas id="distribucionChart"></canvas>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>➕ Nueva Transacción</h2>
+            <form id="transactionForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valor">Valor/Acción</label>
+                        <input type="text" id="valor" required placeholder="ej: AAPL, Tesla, Bitcoin">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Compra">Compra</option>
+                            <option value="Venta">Venta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="precio">Precio por Acción (€)</label>
+                        <input type="number" id="precio" step="0.0001" required placeholder="150.25">
+                    </div>
+                    <div class="form-group">
+                        <label for="valorOperacion">Valor Total Operación (€)</label>
+                        <input type="number" id="valorOperacion" step="0.01" required placeholder="1000.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="comisiones">Comisiones (€)</label>
+                        <input type="number" id="comisiones" step="0.01" value="0" placeholder="5.00">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Cantidad Calculada</label>
+                        <input type="text" id="cantidadCalculada" readonly placeholder="Se calcula automáticamente">
+                    </div>
+                </div>
+                <button type="submit">Añadir Transacción</button>
+            </form>
+            <div id="error-message"></div>
+        </div>
+
+        <div class="form-section">
+            <h2>📁 Importar/Exportar Datos</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button onclick="downloadTemplate()" class="btn-success">📋 Descargar Plantilla Excel</button>
+                <button onclick="document.getElementById('fileInput').click()" class="btn-success">📤 Importar
+                    Excel</button>
+                <button onclick="exportToExcel()" class="btn-success">📥 Exportar a Excel</button>
+            </div>
+
+            <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;" onchange="importExcel()">
+
+            <div id="import-status"></div>
+        </div>
+        <div class="form-section">
+            <h2>📋 Historial de Transacciones</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Valor</th>
+                        <th>Tipo</th>
+                        <th>Precio/Acción</th>
+                        <th>Cantidad</th>
+                        <th>Valor Operación</th>
+                        <th>Comisiones</th>
+                        <th>Total Final</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTable">
+                    <tr>
+                        <td colspan="9" class="loading">Cargando transacciones...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let evolucionChart, distribucionChart;
+
+        // Helper function to display errors
+        function showError(message, targetElementId = 'error-message') {
+            const errorDiv = document.getElementById(targetElementId);
+            if (errorDiv) {
+                errorDiv.innerHTML = `<div class="error">${message}</div>`;
+                setTimeout(() => {
+                    errorDiv.innerHTML = '';
+                }, 5000); // Clear error after 5 seconds
+            } else {
+                console.error("Error display element not found:", message);
+            }
+        }
+
+        // Configure current date by default
+        document.getElementById('fecha').valueAsDate = new Date();
+
+        // Calculate quantity automatically
+        const precioInput = document.getElementById('precio');
+        const valorOperacionInput = document.getElementById('valorOperacion');
+        const cantidadCalculadaInput = document.getElementById('cantidadCalculada');
+
+        function calcularCantidad() {
+            const precio = parseFloat(precioInput.value) || 0;
+            const valorOperacion = parseFloat(valorOperacionInput.value) || 0;
+
+            if (precio > 0 && valorOperacion > 0) {
+                const cantidad = valorOperacion / precio;
+                cantidadCalculadaInput.value = cantidad.toFixed(4) + ' acciones';
+            } else {
+                cantidadCalculadaInput.value = '';
+            }
+        }
+
+        precioInput.addEventListener('input', calcularCantidad);
+        valorOperacionInput.addEventListener('input', calcularCantidad);
+
+        // Load data on start
+        document.addEventListener('DOMContentLoaded', function () {
+            loadData();
+        });
+
+        // Handle form submission
+        document.getElementById('transactionForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = {
+                fecha: document.getElementById('fecha').value,
+                valor: document.getElementById('valor').value.trim(),
+                tipo: document.getElementById('tipo').value,
+                precio_accion: parseFloat(document.getElementById('precio').value),
+                valor_operacion: parseFloat(document.getElementById('valorOperacion').value),
+                comisiones: parseFloat(document.getElementById('comisiones').value) || 0
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/transacciones`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    // Clear form
+                    document.getElementById('transactionForm').reset();
+                    document.getElementById('fecha').valueAsDate = new Date(); // Reset date to current
+                    document.getElementById('cantidadCalculada').value = ''; // Clear calculated quantity
+                    showError('', 'error-message'); // Clear any previous error message
+
+                    // Reload data
+                    loadData();
+                } else {
+                    const error = await response.json();
+                    showError(error.error || 'Error al crear la transacción');
+                }
+            } catch (error) {
+                showError('Error de conexión con el servidor: ' + error.message);
+            }
+        });
+
+        async function loadData() {
+            try {
+                // Show loading indicators
+                document.getElementById('metricCards').innerHTML = '<div class="loading">Cargando métricas...</div>';
+                document.getElementById('transactionsTable').innerHTML = '<tr><td colspan="9" class="loading">Cargando transacciones...</td></tr>';
+
+                // Load summary
+                const resumenResponse = await fetch(`${API_BASE}/resumen`);
+                if (!resumenResponse.ok) {
+                    throw new Error('Error al cargar resumen');
+                }
+                const resumen = await resumenResponse.json();
+                updateMetricCards(resumen.resumen_general);
+
+                // Load transactions
+                const transaccionesResponse = await fetch(`${API_BASE}/transacciones`);
+                if (!transaccionesResponse.ok) {
+                    throw new Error('Error al cargar transacciones');
+                }
+                const transacciones = await transaccionesResponse.json();
+                updateTransactionsTable(transacciones);
+
+                // Load statistics for charts
+                const estadisticasResponse = await fetch(`${API_BASE}/estadisticas`);
+                if (!estadisticasResponse.ok) {
+                    throw new Error('Error al cargar estadísticas');
+                }
+                const estadisticas = await estadisticasResponse.json();
+                updateCharts(estadisticas);
+
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                showError('Error al cargar los datos. Verifica que el servidor backend esté ejecutándose.');
+
+                // Show error content in tables
+                document.getElementById('metricCards').innerHTML = '<div class="error">Error al cargar métricas</div>';
+                document.getElementById('transactionsTable').innerHTML = '<tr><td colspan="9" class="error">Error al cargar transacciones</td></tr>';
+            }
+        }
+
+        function updateMetricCards(resumen) {
+            const cards = document.getElementById('metricCards');
+            cards.innerHTML = `
+                <div class="card">
+                    <h3>💰 Posición Actual</h3>
+                    <div class="value ${resumen.posicion_actual >= 0 ? 'positive' : 'negative'}">
+                        €${resumen.posicion_actual.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>📈 Total Invertido</h3>
+                    <div class="value">€${resumen.total_invertido.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                </div>
+                <div class="card">
+                    <h3>💸 Total Vendido</h3>
+                    <div class="value">€${resumen.total_vendido.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                </div>
+                <div class="card">
+                    <h3>🎯 Beneficio Realizado</h3>
+                    <div class="value ${resumen.beneficio_realizado >= 0 ? 'positive' : 'negative'}">
+                        €${resumen.beneficio_realizado.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>📊 Valores en Cartera</h3>
+                    <div class="value">${resumen.num_valores}</div>
+                </div>
+                <div class="card">
+                    <h3>🔄 Total Operaciones</h3>
+                    <div class="value">${resumen.num_transacciones}</div>
+                </div>
+            `;
+        }
+
+        function updateTransactionsTable(transacciones) {
+            const tbody = document.getElementById('transactionsTable');
+
+            if (transacciones.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No hay transacciones registradas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transacciones.map(t => `
+                <tr>
+                    <td>${new Date(t.fecha).toLocaleDateString('es-ES')}</td>
+                    <td>${t.valor}</td>
+                    <td><span class="${t.tipo === 'Compra' ? 'positive' : 'negative'}">${t.tipo}</span></td>
+                    <td>€${t.precio_accion.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</td>
+                    <td>${t.cantidad_acciones.toFixed(4)}</td>
+                    <td>€${t.valor_operacion.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>€${t.comisiones.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td>€${t.valor_final.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <td><button onclick="deleteTransaction(${t.id})" class="btn-danger">🗑️</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateCharts(estadisticas) {
+            // Gráfico de evolución temporal
+            const ctx1 = document.getElementById('evolucionChart').getContext('2d');
+
+            if (evolucionChart) {
+                evolucionChart.destroy();
+            }
+
+            evolucionChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: estadisticas.evolucion_temporal.map(e => new Date(e.fecha).toLocaleDateString('es-ES')),
+                    datasets: [{
+                        label: 'Inversión Acumulada (€)',
+                        data: estadisticas.evolucion_temporal.map(e => e.inversion_acumulada),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return '€' + value.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de distribución por valores
+            const ctx2 = document.getElementById('distribucionChart').getContext('2d');
+
+            if (distribucionChart) {
+                distribucionChart.destroy();
+            }
+
+            if (estadisticas.top_valores.length > 0) {
+                distribucionChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: estadisticas.top_valores.map(v => v.valor),
+                        datasets: [{
+                            data: estadisticas.top_valores.map(v => v.inversion),
+                            backgroundColor: [
+                                '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                                '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                                '#ffecd2', '#fcb69f'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.label + ': €' + context.parsed.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Clear the chart area or display a message if no data
+                ctx2.clearRect(0, 0, ctx2.canvas.width, ctx2.canvas.height);
+                ctx2.font = '16px Arial';
+                ctx2.textAlign = 'center';
+                ctx2.fillText('No hay datos para el gráfico de distribución', ctx2.canvas.width / 2, ctx2.canvas.height / 2);
+            }
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm('¿Estás seguro de eliminar esta transacción?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/transacciones/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadData();
+                } else {
+                    showError('Error al eliminar la transacción');
+                }
+            } catch (error) {
+                showError('Error de conexión: ' + error.message);
+            }
+        }
+
+        async function exportToExcel() {
+            try {
+                // Obtener todos los datos
+                const [transaccionesRes, resumenRes] = await Promise.all([
+                    fetch(`${API_BASE}/transacciones`),
+                    fetch(`${API_BASE}/resumen`)
+                ]);
+
+                const transacciones = await transaccionesRes.json();
+                const resumen = await resumenRes.json();
+
+                const workbook = XLSX.utils.book_new();
+                const today = new Date().toISOString().split('T')[0];
+
+                // Hoja 1: Transacciones
+                const transaccionesData = [
+                    ['Fecha', 'Valor', 'Tipo', 'Precio_Accion', 'Cantidad_Acciones', 'Valor_Operacion', 'Comisiones', 'Total_Final']
+                ];
+
+                transacciones.forEach(t => {
+                    transaccionesData.push([
+                        t.fecha,
+                        t.valor,
+                        t.tipo,
+                        t.precio_accion,
+                        t.cantidad_acciones,
+                        t.valor_operacion,
+                        t.comisiones,
+                        t.valor_final
+                    ]);
+                });
+
+                const transaccionesSheet = XLSX.utils.aoa_to_sheet(transaccionesData);
+                XLSX.utils.book_append_sheet(workbook, transaccionesSheet, 'Transacciones');
+
+                // Hoja 2: Resumen por valor
+                const resumenData = [
+                    ['Valor', 'Total_Compras', 'Total_Ventas', 'Cantidad_Comprada', 'Cantidad_Vendida', 'Precio_Medio_Compra', 'Precio_Medio_Venta', 'Posicion_Actual', 'Beneficio_Realizado']
+                ];
+
+                resumen.por_valor.forEach(v => {
+                    resumenData.push([
+                        v.valor,
+                        v.total_compras,
+                        v.total_ventas,
+                        v.cantidad_comprada,
+                        v.cantidad_vendida,
+                        v.precio_medio_compra,
+                        v.precio_medio_venta,
+                        v.posicion_actual,
+                        v.beneficio_realizado
+                    ]);
+                });
+
+                const resumenSheet = XLSX.utils.aoa_to_sheet(resumenData);
+                XLSX.utils.book_append_sheet(workbook, resumenSheet, 'Resumen por Valor');
+
+                // Hoja 3: Resumen general
+                const generalData = [
+                    ['Métrica', 'Valor'],
+                    ['Total Invertido', resumen.resumen_general.total_invertido],
+                    ['Total Vendido', resumen.resumen_general.total_vendido],
+                    ['Posición Actual', resumen.resumen_general.posicion_actual],
+                    ['Beneficio Realizado', resumen.resumen_general.beneficio_realizado],
+                    ['Número de Valores', resumen.resumen_general.num_valores],
+                    ['Total Transacciones', resumen.resumen_general.num_transacciones]
+                ];
+
+                const generalSheet = XLSX.utils.aoa_to_sheet(generalData);
+                XLSX.utils.book_append_sheet(workbook, generalSheet, 'Resumen General');
+
+                // Descargar archivo
+                XLSX.writeFile(workbook, `Inversiones_${today}.xlsx`);
+
+            } catch (error) {
+                console.error('Error al exportar datos:', error);
+                showError('Error al exportar datos: ' + error.message);
+            }
+        }
+
+        async function downloadTemplate() {
+            try {
+                const response = await fetch(`${API_BASE}/template/excel`);
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'plantilla_inversiones.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showError('Plantilla descargada exitosamente.', 'import-status'); // Use import-status for success
+                } else {
+                    showError('Error al descargar la plantilla');
+                }
+            } catch (error) {
+                showError('Error de conexión al descargar plantilla: ' + error.message);
+            }
+        }
+
+        async function importExcel() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const statusDiv = document.getElementById('import-status');
+            statusDiv.innerHTML = '<div class="loading">Importando archivo...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/import/excel`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    let statusHTML = `
+                        <div class="success">
+                            <h4>✅ Importación Exitosa</h4>
+                            <p><strong>Transacciones importadas:</strong> ${result.transacciones_importadas}</p>
+                            <p><strong>Total de filas procesadas:</strong> ${result.total_filas}</p>
+                    `;
+
+                    if (result.errores && result.errores.length > 0) {
+                        statusHTML += `
+                            <h5>⚠️ Errores encontrados:</h5>
+                            <ul>
+                                ${result.errores.map(error => `<li>${error}</li>`).join('')}
+                            </ul>
+                        `;
+                    }
+
+                    statusHTML += '</div>';
+                    statusDiv.innerHTML = statusHTML;
+
+                    // Reload data if transactions were imported
+                    if (result.transacciones_importadas > 0) {
+                        loadData();
+                    }
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ Error en la Importación</h4>
+                            <p>${result.error || 'Ocurrió un error desconocido durante la importación.'}</p>
+                            ${result.columnas_requeridas ? `
+                                <p><strong>Columnas requeridas:</strong> ${result.columnas_requeridas.join(', ')}</p>
+                                <p><strong>Columnas encontradas:</strong> ${result.columnas_encontradas.join(', ')}</p>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error">Error de conexión: ${error.message}</div>`;
+            }
+
+            // Clear input
+            fileInput.value = '';
+
+            // Clear status after 10 seconds
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 10000);
+        }
+    </script>
+</body>
+
+</html>

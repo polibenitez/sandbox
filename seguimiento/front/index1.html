@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Inversiones</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .positive {
+            color: #28a745 !important;
+        }
+
+        .negative {
+            color: #dc3545 !important;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: 400px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📊 Control de Inversiones</h1>
+
+        <!-- Métricas principales -->
+        <div class="metric-cards" id="metricCards">
+            <div class="loading">Cargando métricas...</div>
+        </div>
+
+        <!-- Dashboard con gráficos -->
+        <div class="dashboard">
+            <div class="chart-container">
+                <h3>📈 Evolución de la Inversión</h3>
+                <canvas id="evolucionChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>🥧 Distribución por Valores</h3>
+                <canvas id="distribucionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Formulario para nueva transacción -->
+        <div class="form-section">
+            <h2>➕ Nueva Transacción</h2>
+            <form id="transactionForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valor">Valor/Acción</label>
+                        <input type="text" id="valor" required placeholder="ej: AAPL, Tesla, Bitcoin">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select id="tipo" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Compra">Compra</option>
+                            <option value="Venta">Venta</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" id="fecha" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="valorOperacion">Valor de la Operación (€)</label>
+                        <input type="number" id="valorOperacion" step="0.01" required placeholder="1000.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="comisiones">Comisiones (€)</label>
+                        <input type="number" id="comisiones" step="0.01" value="0" placeholder="5.00">
+                    </div>
+                </div>
+                <button type="submit">Añadir Transacción</button>
+            </form>
+            <div id="error-message"></div>
+        </div>
+
+        <!-- Lista de transacciones -->
+        <div class="form-section">
+            <h2>📋 Historial de Transacciones</h2>
+            <button onclick="exportToExcel()" class="btn-success">📥 Exportar a Excel</button>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Valor</th>
+                        <th>Tipo</th>
+                        <th>Valor Operación</th>
+                        <th>Comisiones</th>
+                        <th>Total Final</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTable">
+                    <tr>
+                        <td colspan="7" class="loading">Cargando transacciones...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let evolucionChart, distribucionChart;
+
+        // Configurar fecha actual por defecto
+        document.getElementById('fecha').valueAsDate = new Date();
+
+        // Cargar datos al iniciar
+        document.addEventListener('DOMContentLoaded', function () {
+            loadData();
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('transactionForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const formData = {
+                fecha: document.getElementById('fecha').value,
+                valor: document.getElementById('valor').value.trim(),
+                tipo: document.getElementById('tipo').value,
+                valor_operacion: parseFloat(document.getElementById('valorOperacion').value),
+                comisiones: parseFloat(document.getElementById('comisiones').value) || 0
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/transacciones`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    // Limpiar formulario
+                    document.getElementById('transactionForm').reset();
+                    document.getElementById('fecha').valueAsDate = new Date();
+                    document.getElementById('error-message').innerHTML = '';
+
+                    // Recargar datos
+                    loadData();
+                } else {
+                    const error = await response.json();
+                    showError(error.error || 'Error al crear la transacción');
+                }
+            } catch (error) {
+                showError('Error de conexión con el servidor');
+            }
+        });
+
+        async function loadData() {
+            try {
+                // Cargar resumen
+                const resumenResponse = await fetch(`${API_BASE}/resumen`);
+                const resumen = await resumenResponse.json();
+                updateMetricCards(resumen.resumen_general);
+
+                // Cargar transacciones
+                const transaccionesResponse = await fetch(`${API_BASE}/transacciones`);
+                const transacciones = await transaccionesResponse.json();
+                updateTransactionsTable(transacciones);
+
+                // Cargar estadísticas para gráficos
+                const estadisticasResponse = await fetch(`${API_BASE}/estadisticas`);
+                const estadisticas = await estadisticasResponse.json();
+                updateCharts(estadisticas);
+
+            } catch (error) {
+                showError('Error al cargar los datos');
+            }
+        }
+
+        function updateMetricCards(resumen) {
+            const cards = document.getElementById('metricCards');
+            cards.innerHTML = `
+                <div class="card">
+                    <h3>💰 Posición Actual</h3>
+                    <div class="value ${resumen.posicion_actual >= 0 ? 'positive' : 'negative'}">
+                        €${resumen.posicion_actual.toLocaleString('es-ES')}
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>📈 Total Invertido</h3>
+                    <div class="value">€${resumen.total_invertido.toLocaleString('es-ES')}</div>
+                </div>
+                <div class="card">
+                    <h3>💸 Total Vendido</h3>
+                    <div class="value">€${resumen.total_vendido.toLocaleString('es-ES')}</div>
+                </div>
+                <div class="card">
+                    <h3>🎯 Beneficio Realizado</h3>
+                    <div class="value ${resumen.beneficio_realizado >= 0 ? 'positive' : 'negative'}">
+                        €${resumen.beneficio_realizado.toLocaleString('es-ES')}
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>📊 Valores en Cartera</h3>
+                    <div class="value">${resumen.num_valores}</div>
+                </div>
+                <div class="card">
+                    <h3>🔄 Total Operaciones</h3>
+                    <div class="value">${resumen.num_transacciones}</div>
+                </div>
+            `;
+        }
+
+        function updateTransactionsTable(transacciones) {
+            const tbody = document.getElementById('transactionsTable');
+
+            if (transacciones.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No hay transacciones registradas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = transacciones.map(t => `
+                <tr>
+                    <td>${new Date(t.fecha).toLocaleDateString('es-ES')}</td>
+                    <td>${t.valor}</td>
+                    <td><span class="${t.tipo === 'Compra' ? 'positive' : 'negative'}">${t.tipo}</span></td>
+                    <td>€${t.valor_operacion.toLocaleString('es-ES')}</td>
+                    <td>€${t.comisiones.toLocaleString('es-ES')}</td>
+                    <td>€${t.valor_final.toLocaleString('es-ES')}</td>
+                    <td><button onclick="deleteTransaction(${t.id})" class="btn-danger">🗑️</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateCharts(estadisticas) {
+            // Gráfico de evolución temporal
+            const ctx1 = document.getElementById('evolucionChart').getContext('2d');
+
+            if (evolucionChart) {
+                evolucionChart.destroy();
+            }
+
+            evolucionChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: estadisticas.evolucion_temporal.map(e => new Date(e.fecha).toLocaleDateString('es-ES')),
+                    datasets: [{
+                        label: 'Inversión Acumulada (€)',
+                        data: estadisticas.evolucion_temporal.map(e => e.inversion_acumulada),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (value) {
+                                    return '€' + value.toLocaleString('es-ES');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gráfico de distribución por valores
+            const ctx2 = document.getElementById('distribucionChart').getContext('2d');
+
+            if (distribucionChart) {
+                distribucionChart.destroy();
+            }
+
+            if (estadisticas.top_valores.length > 0) {
+                distribucionChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: estadisticas.top_valores.map(v => v.valor),
+                        datasets: [{
+                            data: estadisticas.top_valores.map(v => v.inversion),
+                            backgroundColor: [
+                                '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                                '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                                '#ffecd2', '#fcb69f'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.label + ': €' + context.parsed.toLocaleString('es-ES');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm('¿Estás seguro de eliminar esta transacción?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/transacciones/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadData();
+                } else {
+                    showError('Error al eliminar la transacción');
+                }
+            } catch (error) {
+                showError('Error de conexión');
+            }
+        }
+
+        async function exportToExcel() {
+            try {
+                // Obtener todos los datos
+                const [transaccionesRes, resumenRes] = await Promise.all([
+                    fetch(`${API_BASE}/transacciones`),
+                    fetch(`${API_BASE}/resumen`)
+                ]);
+
+                const transacciones = await transaccionesRes.json();
+                const resumen = await resumenRes.json();
+
+                const workbook = XLSX.utils.book_new();
+
+                // Hoja 1: Transacciones
+                const transaccionesData = [
+                    ['Fecha', 'Valor', 'Tipo', 'Valor Operación', 'Comisiones', 'Total Final']
+                ];
+
+                transacciones.forEach(t => {
+                    transaccionesData.push([
+                        t.fecha,
+                        t.valor,
+                        t.tipo,
+                        t.valor_operacion,
+                        t.comisiones,
+                        t.valor_final
+                    ]);
+                });
+
+                const transaccionesSheet = XLSX.utils.aoa_to_sheet(transaccionesData);
+                XLSX.utils.book_append_sheet(workbook, transaccionesSheet, 'Transacciones');
+
+                // Hoja 2: Resumen por valor
+                const resumenData = [
+                    ['Valor', 'Total Compras', 'Total Ventas', 'Posición Actual', 'Beneficio Realizado']
+                ];
+
+                resumen.por_valor.forEach(v => {
+                    resumenData.push([
+                        v.valor,
+                        v.total_compras,
+                        v.total_ventas,
+                        v.posicion_actual,
+                        v.beneficio_realizado
+                    ]);
+                });
+
+                const resumenSheet = XLSX.utils.aoa_to_sheet(resumenData);
+                XLSX.utils.book_append_sheet(workbook, resumenSheet, 'Resumen por Valor');
+
+                // Hoja 3: Resumen general
+                const generalData = [
+                    ['Métrica', 'Valor'],
+                    ['Total Invertido', resumen.resumen_general.total_invertido],
+                    ['Total Vendido', resumen.resumen_general.total_vendido],
+                    ['Posición Actual', resumen.resumen_general.posicion_actual],
+                    ['Beneficio Realizado', resumen.resumen_general.beneficio_realizado],
+                    ['Número de Valores', resumen.resumen_general.num_valores],
+                    ['Total Transacciones', resumen.resumen_general.num_transacciones]
+                ];
+
+                const generalSheet = XLSX.utils.aoa_to_sheet(generalData);
+                XLSX.utils.book_append_sheet(workbook, generalSheet, 'Resumen General');
+
+                // Descargar archivo
+                XLSX.writeFile(workbook, `Inversiones_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+            } catch (error) {
+                showError('Error al exportar datos');
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.innerHTML = `<div class="error">${message}</div>`;
+            setTimeout(() => {
+                errorDiv.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>

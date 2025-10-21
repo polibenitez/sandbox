@@ -1,0 +1,3 @@
+ticker,score,price,price_change_pct,volume_ratio,short_interest,rsi,market_cap,reasons,data_quality
+ALBT,0.7,2.9700000286102295,30.83700676499595,13.252242970816788,17.36,58.73786553843006,9133908,"['SI_17.4%_ok', 'Vol_13.3x', 'Gap_30.8%', 'RSI_59']",good
+ADIL,0.5,0.6299999952316284,23.52941313966888,6.585179450531999,2.18,82.97872583269279,9938817,"['Vol_6.6x', 'Gap_23.5%', 'Penny']",good

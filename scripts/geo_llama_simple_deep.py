@@ -9,15 +9,18 @@ from pathlib import Path
 from datetime import datetime
 from openai import RateLimitError
 import os
+import time
 from datetime import timedelta
 from tqdm import tqdm  # Importar tqdm para la barra de progreso
 
 TOKEN = "eyJhbG"
-BASE_URL = "http://127.0.0.1:1234/v1"
+#BASE_URL = "http://127.0.0.1:1234/v1"
+BASE_URL = "http://localhost:11434/v1"
 MAX_WORKERS = 5
 BATCH_SIZE = 100 
-MODEL = 'deepseek-r1-distill-qwen-7b'
-FOLDER = 'data_by_country'
+#MODEL = 'deepseek-r1-distill-qwen-1.5b'
+MODEL = "deepseek-r1:1.5b"
+FOLDER = 'patents_complx_invt'
 
 def create_output_directory(file_path):
     """Create output directory based on parquet file name"""
@@ -162,27 +165,9 @@ def get_address_from_llm(address: List):
                 model=MODEL,
                 messages=[
                     {"role": "system", "content": """
-                        Act as an address parsing and standardization service. Given a list of addresses, extract and standardize the following components:
-                        - street: Full street address including number
-                        - city: City/town/municipality name
-                        - postcode: Postal/ZIP code
-                        - country: Full country name
-                        - nuts3: NUTS3 region code if available
-                        
-                        Requirements:
-                        - Use DOUBLE QUOTES for JSON properties
-                        - Standardize addresses while preserving original information
-                        - Fill in missing components when possible based on context
-                        - Return null for truly missing/unidentifiable components
-                        
-                        Example output format:
-                        [{
-                            "street": "123 Main Street",
-                            "city": "Brussels",
-                            "postcode": "1000",
-                            "country": "Belgium",
-                            "nuts3": "BE100"
-                        }]
+                        Extract the city name from each of the following 9 different addresses. 
+                     Focus on identifying city names that are explicitly mentioned. If you cannot identify a city for an address or if the city name is ambiguous or incomplete, respond with only the word EMPTY. 
+                     Provide the results coma separated in the same order as the addresses given. Do not add any comment, just reply with the name of the city or EMPTY:
                     """},
                     {"role": "user", "content": str(address)}
                 ],
@@ -360,15 +345,27 @@ def find_country_parquet_files(folder_path):
     
     return country_parquet_files
 
+# Función para convertir segundos a horas, minutos y segundos
+def format_time(seconds):
+    hours = int(seconds // 3600)  # 1 hora = 3600 segundos
+    seconds %= 3600
+    minutes = int(seconds // 60)  # 1 minuto = 60 segundos
+    seconds %= 60
+    return f"{hours}h {minutes}m {seconds:.2f}s"
+
 country_files = find_country_parquet_files(FOLDER)
 countries_excluded = ['CY.parquet', 'EE.parquet', 'HR.parquet', 'LT.parquet', 'LV.parquet','MT.parquet','SK.parquet', 'PL.parquet', 'GR.parquet', 'ES.parquet', 'SE.parquet', 'RO.parquet', 'AT.parquet','BE.parquet', 'FI.parquet', 'DK.parquet', 'BG.parquet', 'IT.parquet', 'SI.parquet', 'CZ.parquet','HU.parquet']
 countries_included = ['SK.parquet']
-"""
-Fi y Dk hay que arreglos
-"""
+
 for country in country_files:
     if country in countries_included:
         print(f'Procesing {country} file')
+        # Inicia el contador de tiempo para este archivo
+        start_time_file = time.time()
         process_parquet_file(country)
-        print(f'Proces finished for file {country}')
+        # Finaliza el contador de tiempo para este archivo
+        end_time_file = time.time()
+        elapsed_time_file = end_time_file - start_time_file
+        
+        print(f'Process finished for file {country}. Time elapsed: {format_time(elapsed_time_file)} seconds')
 print("Process completed and saved")
