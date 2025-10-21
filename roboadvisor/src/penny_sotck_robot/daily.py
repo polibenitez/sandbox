@@ -39,7 +39,9 @@ WATCHLIST_SYMBOLS = [
     "CLOV",
     "ALBT", 
     "ADIL", 
-    "bynd"
+    "BYND",
+    "AKBA", 
+    "OPAD",
 ]
 
 API_KEYS = {
