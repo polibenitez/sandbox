@@ -1,0 +1,136 @@
+### **📋 FASE 2 MEJORADA: Sistema Adaptativo Robusto**
+```
+Actúa como ingeniero de ML aplicado a trading con experiencia en sistemas 
+adaptativos y prevención de overfitting.
+
+Mejora `backtest_engine_v2.py` a versión 3.0 con capacidades adaptativas 
+CONTROLADAS y validación estadística rigurosa.
+
+⚙️ MEJORAS FASE 2
+
+1️⃣ PARALELIZACIÓN INTELIGENTE
+   ━━━━━━━━━━━━━━━━━━━━━━━━
+   * ProcessPoolExecutor para multi-ticker
+   * Shared memory para datos históricos (evita duplicación)
+   * Checkpoint system: guardar estado cada N tickers
+   * Progress bar agregada con ETA
+
+2️⃣ ADAPTIVE THRESHOLD (CON SAFEGUARDS)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ⚠️ CRÍTICO: Solo ajustar en VALIDATION set, NUNCA en test
+```python
+   def adaptive_threshold_validation_only(
+       val_results,
+       min_threshold=0.5,
+       max_threshold=0.85,
+       window=20
+   ):
+       """
+       Ajusta threshold SOLO en validation set
+       
+       Reglas:
+       - Si win_rate > 0.70 → +0.03 (más conservador)
+       - Si win_rate < 0.40 → -0.03 (más agresivo)
+       - Max cambio: 0.05 por iteración
+       - Re-validar después de cada ajuste
+       - STOP si train/val gap > 25% (overfitting detectado)
+       """
+```
+
+3️⃣ ENSEMBLE DE MODELOS (Reduce overfitting)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   * No depender de un solo modelo
+   * Voting classifier: RF + XGBoost + LightGBM
+   * Weighted ensemble basado en Sharpe ratio
+   * Señal final: consensus de al menos 2/3 modelos
+
+4️⃣ REGIME DETECTION
+   ━━━━━━━━━━━━━━━━━━
+   Adaptar estrategia según condición de mercado:
+```python
+   def detect_market_regime(spy_data):
+       """
+       Bull: SPY MA50 > MA200, VIX < 20
+       Bear: SPY MA50 < MA200, VIX > 30
+       Choppy: Otros casos
+       
+       Ajustar threshold según régimen:
+       - Bull: threshold - 0.05 (más agresivo)
+       - Bear: threshold + 0.10 (muy conservador)
+       - Choppy: threshold + 0.05
+       """
+```
+
+5️⃣ ONLINE LEARNING (CON LÍMITES)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   * Re-entrenar modelo cada 3 meses CON nuevos datos
+   * Mantener window size fijo (ej: últimos 2 años)
+   * Tracking de drift: ¿El modelo degrada?
+   * Auto-pause si performance < umbral (ej: Sharpe < 0.5)
+
+6️⃣ ADVANCED REPORTING
+   ━━━━━━━━━━━━━━━━━━━━
+   * Dashboard interactivo (Plotly Dash)
+   * Comparativa temporal: ¿Cómo evoluciona la estrategia?
+   * Factor attribution: ¿Qué features más contribuyen?
+   * Correlation matrix de señales
+   * Worst trades analysis (post-mortem)
+
+7️⃣ ALERTAS Y MONITOREO
+   ━━━━━━━━━━━━━━━━━━━━
+```python
+   def risk_monitoring(equity_curve):
+       """
+       Alertas automáticas:
+       - Drawdown > 20% → Email/Slack
+       - 5 pérdidas consecutivas → Pause trading
+       - Sharpe rolling < 0 → Review required
+       - Train/Test gap > 30% → Overfitting WARNING
+       """
+```
+
+8️⃣ BACKTESTING DE BACKTESTING (Meta-validación)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   * Simular cómo habría funcionado el sistema adaptativo en el pasado
+   * ¿El ajuste automático de threshold mejora o empeora?
+   * Comparar: estrategia fija vs adaptativa
+
+🔧 FUNCIONES NUEVAS
+```python
+def ensemble_prediction(models_dict, features):
+    """Voting de múltiples modelos"""
+    
+def detect_overfitting(train_metrics, val_metrics, threshold=0.25):
+    """¿Gap train/val excesivo?"""
+    
+def adaptive_retraining_schedule(performance_history):
+    """Decidir CUÁNDO re-entrenar"""
+    
+def generate_interactive_dashboard(results):
+    """Dashboard HTML interactivo con Plotly"""
+    
+def export_to_quantstats(equity_curve, trades):
+    """Formato compatible con QuantStats library"""
+```
+
+⚠️ PRINCIPIO DE ORO
+
+"Un backtest que se ve demasiado bueno, probablemente lo sea"
+
+SI tus métricas son:
+- Win rate > 75%
+- Sharpe > 3.0
+- Max DD < 10%
+
+→ Probablemente hay overfitting u olvid has algo crítico.
+
+✅ CHECKLIST PRE-LIVE
+
+Antes de usar en real:
+□ Backtest en out-of-sample completo
+□ Forward test en paper trading 3 meses mínimo
+□ Transaction costs REALISTAS incluidos
+□ Sharpe ratio > 1.5 en forward test
+□ Max DD tolerable (< 25%)
+□ Código revisado por otro developer
+□ Plan de exit si no funciona

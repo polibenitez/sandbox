@@ -1,0 +1,50 @@
+vamos actualizar los ficheros integration_v4_trading_manager.py y penny_stock_advisor_v4.py que son el corazon de nuestro sistema de analisis de pennys stocks con estos cambios y generamos una nueva version v5.
+1- CAMBIOS CLAVE
+Mejora	Implementación
+Caché de datos	MarketDataCache usa lru_cache + persistencia opcional con pickle
+Logging configurable	logging.config.dictConfig() con niveles dinámicos (INFO/DEBUG)
+Score normalizado	Cada fase escala 0–100 antes del score final
+ATR en compresión	Nuevo parámetro atr_ratio < 0.02 en detect_setup_compression()
+Backtesting multi-símbolo	Módulo backtester.py soporta análisis paralelo con concurrent.futures
+Aprendizaje supervisado	Modelo RandomForestClassifier entrenado con tu histórico (features = setup+trigger vars) (si sugieres otro modelo adelante)
+Autoajuste dinámico	optimizer.py recalibra thresholds cada N trades usando win_rate_rolling
+Datos alternativos	Reddit y short borrow rate integrados (API opcional, o CSV local)
+Divergencias RSI/MACD	ta + numpy.diff detectan divergencias clásicas y bajistas para confirmar salidas
+
+
+2- FLUJO DE EJECUCIÓN
+
+Carga configuración y logging.
+
+Usa caché de datos históricos (Yahoo).
+
+Calcula indicadores y ATR → fase de compresión.
+
+Detecta triggers + divergencias RSI/MACD.
+
+Fusiona señales con datos alternativos (Reddit + short).
+
+Evalúa modelo ML (probabilidad de ruptura real).
+
+Calcula composite score normalizado.
+
+Aplica umbral autoajustado según win rate rolling.
+
+Genera señales y logs con action: BUY / WAIT / SKIP.
+
+3- EXTENSIONES 
+
+Deep Learning (LSTM o Transformer para series de ruptura).
+
+Detección automática de patrones de velas (“cup & handle”, “flag”).
+
+
+EXPECTATIVAS DEL DATASET
+este dataset se usará para el entrenamiento del modelo (si tienes alguna sugerencia podemos cambiarlo) 
+| symbol | date       | bb_width | adx  | vol_ratio | rsi | macd_diff | atr_ratio | short_float | exploded |
+| :----- | :--------- | :------- | :--- | :-------- | :-- | :-------- | :-------- | :---------- | :------- |
+| BYND   | 2024-05-15 | 0.08     | 18.3 | 2.9       | 62  | 0.003     | 0.015     | 0.12        | 1        |
+| COSM   | 2024-05-18 | 0.10     | 22.1 | 1.7       | 48  | -0.002    | 0.025     | 0.09        | 0        |
+
+
+nota**: las nuevas versiones serán la version 5, los ficheros generados puedes guardarlos en esta misma carpeta

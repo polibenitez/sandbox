@@ -1,0 +1,39 @@
+FASE A: Refactorización de scoring (2-3 días)
+   ⬜ Implementar sistema de scoring de 3 capas
+   ⬜ Agregar penalizaciones severas
+   ⬜ Crear función de memoria (día de explosión)
+   ⬜ Testing unitario de cada componente
+   
+   Archivos a modificar:
+   - penny_stock_advisor_v3_enhanced.py
+   
+   Funciones nuevas principales:
+   - detect_setup_compression()
+   - get_explosion_day_number()
+   - calculate_phase1_setup_score()
+   - calculate_phase2_trigger_score()
+   - calculate_phase3_context_score()
+   - apply_penalties()
+
+FASE B: Contexto de mercado (1-2 días)
+   ⬜ Agregar análisis de SPY/QQQ
+   ⬜ Agregar análisis de VIX
+   ⬜ Implementar filtros de contexto
+   ⬜ Testing con diferentes escenarios de mercado
+   
+   Nuevas funciones:
+   - get_market_context()
+   - get_vix_level()
+   - get_sector_sentiment()
+
+FASE C: Gestión de salidas mejorada (2-3 días)
+   ⬜ Implementar detector de divergencia RSI
+   ⬜ Mejorar trailing stops dinámicos
+   ⬜ Implementar salidas parciales escalonadas
+   ⬜ Agregar señales de distribución
+   
+   Nuevas funciones:
+   - detect_bearish_divergence()
+   - calculate_dynamic_trailing_stop()
+   - calculate_partial_exit_levels()
+   - detect_distribution_pattern()

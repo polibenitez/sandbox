@@ -1,0 +1,187 @@
+Actúa como ingeniero cuantitativo senior con experiencia en backtesting riguroso 
+y prevención de sesgos estadísticos. 
+
+Genera un módulo `backtest_engine_v2.py` que implemente un sistema de backtesting 
+SIN SESGOS para evaluar el algoritmo Penny Stock Advisor.
+
+🎯 OBJETIVO
+Construir un backtesting que simule condiciones REALISTAS del mercado, evitando:
+- Look-ahead bias (usar datos futuros)
+- Survivorship bias (solo stocks exitosos)
+- Overfitting (sobreoptimización)
+
+⚙️ ARQUITECTURA DEL SISTEMA
+
+1. DATA MANAGEMENT
+   ━━━━━━━━━━━━━━━━
+   * Universe Selection:
+     - NO solo tickers exitosos conocidos
+     - Usar un universo amplio (ej: Russell 2000 o filtro por market cap)
+     - Incluir stocks que fallaron/quebraron (delisted)
+   
+   * Temporal Split (CRÍTICO):
+     ┌─────────────┬──────────┬─────────┐
+     │   TRAIN     │   VAL    │  TEST   │
+     │  (60%)      │  (20%)   │  (20%)  │
+     └─────────────┴──────────┴─────────┘
+     - Train: Entrenar modelo
+     - Validation: Ajustar threshold
+     - Test: NUNCA TOCADO hasta el final (out-of-sample)
+
+2. WALK-FORWARD ANALYSIS
+   ━━━━━━━━━━━━━━━━━━━━
+```
+   [Train Window] → [Test Window] → Rodar ventana →
+   ├─ 6 meses    ─┤ ├─ 1 mes ─┤
+                   ├─ 6 meses ─┤ ├─ 1 mes ─┤
+                                ├─ 6 meses ─┤ ├─ 1 mes ─┤
+```
+   * Re-entrenar modelo cada N días (ej: cada 90 días)
+   * Previene usar información futura
+
+3. SIGNAL GENERATION (SIN LOOK-AHEAD)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   * Calcular features SOLO con datos disponibles hasta T
+   * Generar señal en cierre del día T
+   * Ejecutar trade al OPEN del día T+1 (realista)
+   * Precio de entrada: `open[T+1]` + slippage
+
+4. POSITION MANAGEMENT
+   ━━━━━━━━━━━━━━━━━━━
+   * Capital inicial: $100,000
+   * Position sizing: Kelly Criterion o % fijo (ej: 2% por trade)
+   * Stop-loss: -15% (configurable)
+   * Take-profit: +20% (configurable)
+   * Max holdings: 10 posiciones simultáneas
+   * Trailing stop: opcional
+
+5. TRANSACTION COSTS (REALISTA)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```python
+   commission = 0.001  # 0.1% por trade
+   slippage = 0.002    # 0.2% slippage (penny stocks tienen spread alto)
+   
+   entry_price = open_price * (1 + slippage)
+   exit_price = close_price * (1 - slippage)
+   cost = (entry_price * shares * commission) + 
+          (exit_price * shares * commission)
+```
+
+6. PERFORMANCE METRICS (COMPLETAS)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   * Retorno total (%)
+   * CAGR (Compound Annual Growth Rate)
+   * Sharpe Ratio (risk-adjusted return)
+   * Sortino Ratio (downside risk)
+   * Max Drawdown (%)
+   * Calmar Ratio (CAGR / Max DD)
+   * Win Rate (%)
+   * Profit Factor (gross profit / gross loss)
+   * Average Trade (winner vs loser)
+   * Expectancy = (Win% × Avg Win) - (Loss% × Avg Loss)
+   * Recovery Time (días para recuperar drawdown)
+   * Consecutive Losses (max racha perdedora)
+
+7. MONTE CARLO SIMULATION
+   ━━━━━━━━━━━━━━━━━━━━━━
+   * Simular 1000 secuencias aleatorias de los mismos trades
+   * Calcular percentiles de retorno (P5, P25, P50, P75, P95)
+   * Determinar probabilidad de ruina
+
+8. VALIDACIÓN ESTADÍSTICA
+   ━━━━━━━━━━━━━━━━━━━━━━
+   * Bootstrap test: ¿El resultado es estadísticamente significativo?
+   * Comparar vs Buy & Hold en SPY
+   * T-test: ¿Outperformance es real o suerte?
+
+9. VISUALIZACIÓN AVANZADA
+   ━━━━━━━━━━━━━━━━━━━━━━
+   * Equity curve con drawdowns sombreados
+   * Distribution of returns (histograma)
+   * Rolling Sharpe (ventana 60 días)
+   * Monthly returns heatmap
+   * Underwater plot (tiempo en drawdown)
+   * Trade duration distribution
+
+🔧 FUNCIONES REQUERIDAS
+```python
+# Core Engine
+def get_universe(start_date, end_date, min_price=1, max_price=10):
+    """Obtener universo de penny stocks (evita survivorship bias)"""
+    
+def temporal_split(data, train_pct=0.6, val_pct=0.2):
+    """Split temporal SIN shuffle"""
+    
+def walk_forward_split(data, train_days=180, test_days=30):
+    """Genera ventanas walk-forward"""
+
+def calculate_features_realtime(df, current_idx):
+    """Features SOLO con datos hasta current_idx (evita look-ahead)"""
+
+# Position Management
+def size_position(capital, risk_per_trade=0.02, stop_loss_pct=0.15):
+    """Kelly Criterion o % fijo"""
+    
+def apply_stop_loss(position, current_price, stop_pct=0.15):
+    """Cerrar si alcanza stop"""
+    
+def apply_take_profit(position, current_price, target_pct=0.20):
+    """Cerrar si alcanza target"""
+
+# Transaction Costs
+def calculate_entry_cost(shares, price, commission=0.001, slippage=0.002):
+    """Costo real de entrada"""
+    
+def calculate_exit_cost(shares, price, commission=0.001, slippage=0.002):
+    """Costo real de salida"""
+
+# Backtesting
+def run_backtest_realistic(
+    universe, 
+    start_date, 
+    end_date, 
+    model_path,
+    initial_capital=100000,
+    max_positions=10
+):
+    """Motor principal con walk-forward"""
+    
+# Metrics
+def calculate_all_metrics(trades_df, equity_curve):
+    """Calcula TODAS las métricas de performance"""
+    
+def monte_carlo_simulation(trades, n_simulations=1000):
+    """Simula secuencias aleatorias"""
+    
+def statistical_validation(returns, benchmark_returns):
+    """Tests estadísticos de significancia"""
+
+# Reporting
+def generate_tearsheet(results, save_path='reports/'):
+    """Genera reporte completo con todos los gráficos"""
+```
+
+📊 OUTPUT ESPERADO
+
+1. `data/backtest_results.csv` - Detalle de cada trade
+2. `data/equity_curve.csv` - Curva de capital día a día
+3. `data/metrics_summary.json` - Métricas agregadas
+4. `reports/tearsheet_<timestamp>.html` - Reporte visual completo
+5. `reports/monte_carlo_<timestamp>.png` - Distribución simulada
+
+🎁 FEATURES ADICIONALES
+
+* Modo comparativo: backtest múltiples estrategias lado a lado
+* Export a formato QuantStats para análisis avanzado
+* Guardado de estado para continuar backtests largos
+* Detección automática de overfitting (train vs test gap)
+
+⚠️ VALIDACIONES CRÍTICAS
+
+ANTES de confiar en los resultados, el script debe imprimir:
+✓ "¿El test set es out-of-sample? → YES/NO"
+✓ "¿Sharpe ratio > 1.0? → YES/NO"
+✓ "¿Outperformance vs SPY es estadísticamente significativa? → YES/NO"
+✓ "¿Max Drawdown < 30%? → YES/NO"
+✓ "¿Train/Test gap < 20%? → YES/NO" (detecta overfitting)
+```

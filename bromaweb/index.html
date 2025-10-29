@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Cuánto te queda?</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #1e1e2f;
+            color: #f0f0f0;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #2c2c44;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        /* --- Estilos del Contador (para tu amigo) --- */
+        #contador-view h1 {
+            font-size: 2.5rem;
+            color: #40e0d0; /* Un color turquesa */
+            margin-bottom: 20px;
+        }
+        #contador-view p {
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+        .display-lunes {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: #ffc107; /* Ámbar */
+            margin: 20px 0;
+            line-height: 1;
+        }
+        .display-horas {
+            font-size: 2rem;
+            font-weight: 300;
+            color: #f0f0f0;
+            background-color: #1e1e2f;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+        }
+        
+        /* --- Estilos del Generador (para ti) --- */
+        #generador-view h2 {
+            color: #40e0d0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 2px solid #555;
+            background-color: #333;
+            color: #f0f0f0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #40e0d0;
+            color: #1e1e2f;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #50f0e0;
+        }
+        #output-link {
+            width: 100%;
+            padding: 12px;
+            font-size: 0.9rem;
+            background-color: #111;
+            color: #ffc107;
+            border: 1px dashed #555;
+            border-radius: 6px;
+            margin-top: 25px;
+            box-sizing: border-box;
+            font-family: monospace;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="contador-view" style="display:none;">
+            <h1>¡a joderse, <span id="nombre-amigo"></span>!</h1>
+            <p>te quedan</p>
+            <div class="display-lunes">
+                <span id="contador-lunes">...</span>
+                <span style="font-size: 1.5rem; display: block; color: #aaa;">Lunes</span>
+            </div>
+            <p>...y cuando llegues vas a estar tan cansao y con tantos dolores que no vas a tener ganas de vivir...</p>
+            <div class="display-horas" id="contador-horas">
+                Calculando...
+            </div>
+        </div>
+
+        <div id="generador-view">
+            <h2>Generador de Broma de Jubilación</h2>
+            <p>Introduce los datos de tu amigo para crear su enlace.</p>
+            <div class="form-group">
+                <label for="name">Nombre del colega:</label>
+                <input type="text" id="name" placeholder="Ej: Juan Pérez">
+            </div>
+            <div class="form-group">
+                <label for="age">Edad actual:</label>
+                <input type="number" id="age" placeholder="Ej: 40">
+            </div>
+            <div class="form-group">
+                <label for="month">Mes de su cumpleaños (1-12):</label>
+                <input type="number" id="month" placeholder="Ej: 5 (para Mayo)" min="1" max="12">
+            </div>
+            <button onclick="generarEnlace()">Generar Enlace</button>
+            
+            <input type="text" id="output-link" style="display:none;" readonly onclick="this.select()">
+        </div>
+
+    </div>
+
+    <script>
+        // Lógica principal: Se ejecuta al cargar la página
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Comprueba si la URL tiene los nuevos parámetros
+            if (params.has('name') && params.has('age') && params.has('month')) {
+                // SÍ HAY PARÁMETROS: Mostrar el contador
+                document.getElementById('generador-view').style.display = 'none';
+                document.getElementById('contador-view').style.display = 'block';
+                
+                // Decodificamos los datos de la URL
+                const name = params.get('name');
+                const age = parseInt(params.get('age'));
+                const birthMonth = parseInt(params.get('month'));
+                
+                iniciarContador(name, age, birthMonth);
+            }
+            // NO HAY PARÁMETROS: Se muestra el generador (ya es visible por defecto)
+        };
+
+        // FUNCIÓN 1: El Generador de Enlaces (para ti)
+        function generarEnlace() {
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const month = document.getElementById('month').value;
+            
+            if (!name || !age || !month) {
+                alert("Por favor, rellena todos los campos.");
+                return;
+            }
+            if (parseInt(month) < 1 || parseInt(month) > 12) {
+                 alert("El mes debe ser un número entre 1 y 12.");
+                return;
+            }
+            
+            // Codificamos los datos para que funcionen bien en una URL
+            const encodedName = encodeURIComponent(name);
+            
+            // Construye la URL base + los parámetros
+            const baseUrl = window.location.href.split('?')[0];
+            const link = `${baseUrl}?name=${encodedName}&age=${age}&month=${month}`;
+            
+            // Muestra el enlace en el campo de texto
+            const outputEl = document.getElementById('output-link');
+            outputEl.value = link;
+            outputEl.style.display = 'block';
+            outputEl.select();
+            document.execCommand('copy'); // Intenta copiar al portapapeles
+            alert("¡Enlace generado y copiado al portapapeles!");
+        }
+
+        // FUNCIÓN 2: Iniciar el Contador (para tu amigo)
+        function iniciarContador(name, age, birthMonth) {
+            document.getElementById('nombre-amigo').textContent = name;
+            
+            // 1. Calcular la fecha de jubilación (fija a los 67)
+            const fechaJubilacion = calcularFechaJubilacion(age, birthMonth);
+            
+            // 2. Calcular los lunes
+            const lunesRestantes = calcularLunesRestantes(fechaJubilacion);
+            document.getElementById('contador-lunes').textContent = lunesRestantes.toLocaleString('es-ES');
+            
+            // 3. Iniciar el contador de horas (se actualiza cada segundo)
+            const horasEl = document.getElementById('contador-horas');
+            
+            // Ejecutar una vez al inicio
+            actualizarContadorHoras(fechaJubilacion, horasEl);
+            
+            // Actualizar cada segundo
+            setInterval(() => {
+                actualizarContadorHoras(fechaJubilacion, horasEl);
+            }, 1000);
+        }
+
+        // --- FUNCIONES DE CÁLCULO ---
+
+        function calcularFechaJubilacion(age, birthMonth) {
+            // EDAD_JUBILACION_FIJA = 67
+            
+            const hoy = new Date();
+            const anoActual = hoy.getFullYear();
+            const mesActual = hoy.getMonth(); // 0-11
+            const diaActual = hoy.getDate();
+
+            // Convertimos el mes de entrada (1-12) a índice (0-11)
+            const mesNacimientoIndex = birthMonth - 1;
+
+            // Estimamos su año de nacimiento
+            let anoNacimiento;
+            if (mesNacimientoIndex < mesActual) {
+                // Su cumpleaños este año ya pasó
+                anoNacimiento = anoActual - age;
+            } else if (mesNacimientoIndex > mesActual) {
+                // Su cumpleaños este año aún no ha llegado
+                anoNacimiento = anoActual - age - 1;
+            } else {
+                // Es su mes de cumpleaños, asumimos el día 1 por simplicidad
+                // (Si su cumple fue ayer, tiene 'age', si es mañana, tiene 'age-1')
+                // Para la broma, lo más simple es:
+                anoNacimiento = anoActual - age;
+            }
+
+            // Creamos su "fecha de nacimiento" estimada (usamos el día 1)
+            const dobEstimada = new Date(anoNacimiento, mesNacimientoIndex, 1);
+            
+            // Calculamos la fecha de jubilación sumando 67 años
+            const fechaJubilacion = new Date(dobEstimada);
+            fechaJubilacion.setFullYear(dobEstimada.getFullYear() + 67);
+            
+            return fechaJubilacion;
+        }
+
+        function calcularLunesRestantes(fechaJubilacion) {
+            const hoy = new Date();
+            if (hoy >= fechaJubilacion) return 0;
+
+            let primerLunes = new Date(hoy);
+            
+            // Encontrar el próximo lunes (1 = Lunes en getDay())
+            let diasHastaLunes = (1 - hoy.getDay() + 7) % 7;
+            if (diasHastaLunes === 0 && hoy.getDay() === 1) {
+                // Hoy es lunes, contarlo
+            } else {
+                 primerLunes.setDate(hoy.getDate() + diasHastaLunes);
+            }
+            
+            // Ponemos la hora a cero para evitar problemas de cálculo
+            primerLunes.setHours(0,0,0,0);
+            
+            if (primerLunes > fechaJubilacion) return 0;
+            
+            // Calcular la diferencia en milisegundos
+            const diffMs = fechaJubilacion.getTime() - primerLunes.getTime();
+            
+            // Convertir a días y dividir por 7
+            const diffDays = diffMs / (1000 * 60 * 60 * 24);
+            const semanas = Math.floor(diffDays / 7);
+            
+            // Sumar 1 (para incluir el primer lunes que encontramos)
+            return semanas + 1;
+        }
+
+        function actualizarContadorHoras(fechaJubilacion, elemento) {
+            const hoy = new Date();
+            const diffMs = fechaJubilacion.getTime() - hoy.getTime();
+            
+            if (diffMs <= 0) {
+                elemento.innerHTML = "¡YA ESTÁS JUBILADO! 🥳";
+                document.getElementById('contador-lunes').textContent = "0";
+                return;
+            }
+
+            // Calcular Días, Horas, Minutos y Segundos
+            const totalSegundos = Math.floor(diffMs / 1000);
+            const totalMinutos = Math.floor(totalSegundos / 60);
+            const totalHoras = Math.floor(totalMinutos / 60);
+            
+            const dias = Math.floor(totalHoras / 24);
+            const horas = totalHoras % 24;
+            const minutos = totalMinutos % 60;
+            const segundos = totalSegundos % 60;
+            
+            // Formatear (añadir ceros a la izquierda)
+            const pad = (num) => num.toString().padStart(2, '0');
+            
+            // Mostrar la cuenta atrás total en horas, y también D:H:M:S
+            elemento.innerHTML = `
+                <span style="font-size: 1.2rem; color: #aaa;">Total: ${totalHoras.toLocaleString('es-ES')} horas</span><br>
+                ${dias.toLocaleString('es-ES')} días, ${pad(horas)}h ${pad(minutos)}m ${pad(segundos)}s
+            `;
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+priemro tienes que leer el fichero analisis_teorico_estrategia_trading.md y entenderlo.
+luego vamos aplicar esos cambios en los ficheros penny_stock_advisor_v3_enhanced.py y integration_v3_trading_manager.py siguiendo los siguientes pasos:
+
+FASE A: Refactorización de scoring 
+   ⬜ Implementar sistema de scoring de 3 capas
+   ⬜ Agregar penalizaciones severas
+   ⬜ Crear función de memoria (día de explosión)
+   ⬜ Testing unitario de cada componente
+   
+   
+   Funciones nuevas principales:
+   - detect_setup_compression()
+   - get_explosion_day_number()
+   - calculate_phase1_setup_score()
+   - calculate_phase2_trigger_score()
+   - calculate_phase3_context_score()
+   - apply_penalties()
+
+FASE B: Contexto de mercado 
+   ⬜ Agregar análisis de SPY/QQQ
+   ⬜ Agregar análisis de VIX
+   ⬜ Implementar filtros de contexto
+   ⬜ Testing con diferentes escenarios de mercado
+   
+   Nuevas funciones:
+   - get_market_context()
+   - get_vix_level()
+   - get_sector_sentiment()
+
+FASE C: Gestión de salidas mejorada 
+   ⬜ Implementar detector de divergencia RSI
+   ⬜ Mejorar trailing stops dinámicos
+   ⬜ Implementar salidas parciales escalonadas
+   ⬜ Agregar señales de distribución
+   
+   Nuevas funciones:
+   - detect_bearish_divergence()
+   - calculate_dynamic_trailing_stop()
+   - calculate_partial_exit_levels()
+   - detect_distribution_pattern()
+
+
+**nota. si lo ves oportuno puedes crear dos ficheros nuevos que sean v4.
