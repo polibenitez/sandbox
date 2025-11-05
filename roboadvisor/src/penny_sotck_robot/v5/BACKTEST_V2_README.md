@@ -130,7 +130,7 @@ Simula 1000+ secuencias aleatorias de trades para:
 ### Requisitos
 
 ```bash
-pip install numpy pandas matplotlib seaborn scipy yfinance scikit-learn
+pip3 install numpy pandas matplotlib seaborn scipy yfinance scikit-learn
 ```
 
 ### Uso Básico

@@ -309,7 +309,7 @@ class CompleteBacktestRunner:
 
             # Actualizar régimen de mercado periódicamente
             if regime_update_counter >= update_regime_every_days:
-                spy_recent = spy_data[spy_data.index <= pd.Timestamp(current_date)]
+                spy_recent = spy_data[spy_data.index <= pd.Timestamp(current_date).tz_localize('America/New_York')]
                 if len(spy_recent) > 200:
                     self.engine.update_market_regime(spy_recent)
                     regime_update_counter = 0
