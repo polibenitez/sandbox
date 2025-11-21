@@ -1,0 +1,64 @@
+Analiza y mejora el script de backtesting `run_complete_backtest_v3.py`. El problema principal es que NO está encontrando oportunidades de compra en dos años, aunque hay stocks que subieron 100%. 
+
+CAMBIOS CRÍTICOS REQUERIDOS:
+
+1. **IMPLEMENTAR MODELO ML PREDICTIVO**:
+   - Crear clase `MLPricePredictor` que entrene XGBoost/LightGBM para predecir si un stock subirá >10% en 5 días
+   - El modelo debe usar features: RSI, ATR ratio, short interest, volume ratio, MACD, momentum, volatility
+   - Balancear clases (usar class_weight='balanced' o SMOTE)
+   - Retornar PROBABILIDAD de subida (no solo clasificación binaria)
+
+2. **REENTRENAMIENTO WALK-FORWARD**:
+   - Reentrenar el modelo cada 30 días con datos de los últimos 90 días (training window)
+   - Usar datos previos para entrenamiento, no datos futuros
+   - Guardar importancia de features por período
+
+3. **LÓGICA DE ENTRADA MEJORADA**:
+   - Cambiar de "solo COMPRA FUERTE" a entrada si CUALQUIERA de estas se cumple:
+     * Probabilidad del modelo ML > 55%
+     * RSI < 30 (oversold) Y momentum positivo
+     * Soporte técnico roto al alza (close > MA20) Y volumen alto
+     * Divergencia alcista + modelo ML > 50%
+   - Usar SCORING: score_final = (0.5 * ml_probability) + (0.3 * technical_score) + (0.2 * regime_bonus)
+   - Entra si score_final > 0.60 (ajustable, NO fixed threshold)
+
+4. **ADAPTIVE THRESHOLD ARREGLADO**:
+   - En lugar de threshold fijo, usar sistema de scoring ponderado
+   - Multiplicar score por market regime: bullish=1.2x, bearish=0.8x
+   - Bajar threshold mínimo a 0.55-0.60 (ahora está muy alto)
+
+5. **ENSEMBLE VOTING**:
+   - Entrenar 3 modelos: XGBoost, LightGBM, RandomForest
+   - Usar votación de probabilidad: si 2+ modelos predicen >55%, entra
+   - Usar promedio de probabilidades si todos predicen >50%
+
+6. **MEJORAR FEATURES**:
+   - Agregar: precio relativo al MA50, % arriba de mínimo de 52 semanas, cambio de volumen vs media
+   - Agregar derivadas: momentum de RSI, cambio en volatilidad
+   - Normalizar features a 0-1 (StandardScaler o MinMaxScaler)
+
+7. **GESTIÓN DE FALSOS POSITIVOS**:
+   - Agregar requisito: volumen actual > promedio 20 días * 1.2 (confirmar con volumen)
+   - Si warning flags (gap down, earnings unknown) -> no entrar
+   - Usar risk/reward: solo entrar si (take_profit % / stop_loss %) > 1.5
+
+8. **LOGGING Y DEBUGGING**:
+   - Loguear para cada evaluación: ML prob, technical score, final score, por qué entró/no entró
+   - Guardar predicciones del modelo para análisis posterior
+   - Mostrar feature importance mensualmente
+
+9. **OPTIMIZACIÓN DE PARÁMETROS**:
+   - take_profit inicial: 20% (estaba muy bajo en 15%)
+   - stop_loss: 8% (mantener)
+   - max_holding_days: 10 (aumentar de 7)
+   - position_size: dinámico basado en confianza del modelo (2-5%)
+
+10. **VALIDACIÓN**:
+    - Hacer Walk-Forward Validation: dividir en train/val/test sin lookahead
+    - Calcular AUC-ROC del modelo de predicción
+    - Backtest solo en período TEST (no con datos usados en training)
+
+RESULTADO ESPERADO: Debería encontrar múltiples oportunidades de compra (al menos 30-50 trades en 2 años) con win rate >50% y capturar movimientos de 100%+ de stocks con potencial.
+
+Mantén toda la estructura existente (BacktestEngineV3, reportes, métricas) pero integra estos cambios en SignalAdapter y CompleteBacktestRunner. 
+El nuevo fichero será run_complete_backtest_v4.txt

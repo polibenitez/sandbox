@@ -30,8 +30,8 @@ import torch
 import re
 
 # --- CONFIGURACIÓN ---
-INPUT_FILE = "v3/resultados_matching/matched_ES.parquet"
-OUTPUT_DIR = "v3/resultados_matching"
+INPUT_FILE = "resultados_matching/matched_ES.parquet"
+OUTPUT_DIR = "resultados_matching"
 CHUNK_SIZE = 100_000  # Procesar 100k filas a la vez
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 

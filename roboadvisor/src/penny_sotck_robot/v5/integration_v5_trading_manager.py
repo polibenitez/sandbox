@@ -44,7 +44,7 @@ WATCHLIST_SYMBOLS = [
     "RGC", "RVPH", "ONDS", "ADTX", "CLSK", "BITF", "IREN", "WGRX", "ADAG", "QLGN",
     "VIVK", "ASNS", "DFLI", "DVLT", "ASST", "PROP", "DGXX", "BKYI", "SLGB",
     "KULR", "FGI", "PLUG", "REKR", "SLDP", "SLNH", "NUAI", "HIPO", "UAMY", "OSCR", "ZETA", 
-    "NXDR", "UTZ", "ATON", "BTOG", "BINI", "UP", "KSS", "SCWO", "STM", "ERNA", "AXGN"
+    "NXDR", "UTZ", "ATON", "BTOG", "BINI", "UP", "KSS", "SCWO", "STM", "ERNA", "AXGN", "PONY"
 ]
 WATCHLIST_SYMBOLS = set(WATCHLIST_SYMBOLS)
 
