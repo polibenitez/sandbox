@@ -347,7 +347,7 @@ class TradingManagerV5:
     Gestor principal V5 - Sistema completo integrado
     """
 
-    def __init__(self, config_preset="balanced", enable_backtesting=False):
+    def __init__(self, config_preset="aggressive", enable_backtesting=False):
         """
         Args:
             config_preset: "conservative" | "balanced" | "aggressive"
