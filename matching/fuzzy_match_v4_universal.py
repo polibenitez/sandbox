@@ -31,6 +31,7 @@ import pickle
 import json
 import hashlib
 import platform
+import os
 import argparse
 import logging
 import sys
@@ -781,7 +782,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Ejemplos:
-  python fuzzy_match_v4_universal.py --input data.parquet --output results/
+  python fuzzy_match_v4_universal.py --input resultados_matching/matched_DE.parquet --output resultados_matching/DE/
   python fuzzy_match_v4_universal.py --input data.parquet --batch-size 20000
   python fuzzy_match_v4_universal.py --resume  # Continuar desde checkpoint
         """
