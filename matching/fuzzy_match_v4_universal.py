@@ -23,6 +23,11 @@ python fuzzy_match_v4_universal.py --input data.parquet --output results/
 python fuzzy_match_v4_universal.py --resume  # Continuar desde último checkpoint
 """
 
+# ⚠️ IMPORTANTE: Esto DEBE ir antes de cualquier otro import
+# Evita warnings de deadlock cuando se usa multiprocessing con tokenizers
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 import polars as pl
 import numpy as np
 import torch
@@ -31,7 +36,6 @@ import pickle
 import json
 import hashlib
 import platform
-import os
 import argparse
 import logging
 import sys
